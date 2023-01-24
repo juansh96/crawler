@@ -3,11 +3,11 @@ import time
 import os
 import pandas as pd
 #estas son las mias
-from platforms.wemakeprice.helper_functions.driver_setup import driver_setup
-from platforms.wemakeprice.helper_functions.scroll_down import scroll_down
+
+from platforms.wemakeprice.helper_functions.get_links_to_ads import get_links_to_ads
 from platforms.wemakeprice.helper_functions.write_links_excel import write_links_excel
 from platforms.wemakeprice.helper_functions.extract_each_ad import extract_each_ad
-from helper_functions_main import check_exists_by_xpath, short_name, links_leads
+from helper_functions_main import driver_setup, short_name, links_leads
 
 
 existent_links_path = os.path.join("Input_data","existent_links.xlsx")
@@ -26,7 +26,7 @@ driver = driver_setup()
 try:
     for short_name, real_name, source_campaign, country, profile_url in zip(list_lead_short_name, list_lead_real_name, list_source_campaign, list_country, list_profile_url):
 
-        lead_name = short_name
+        short_lead_name = short_name
 
         real_name = real_name
 
@@ -36,7 +36,7 @@ try:
 
         platform_name = platform
 
-        print(f'Extrayendo links de: {real_name} \n Nombre corto: {lead_name} \n País: {country} \n Source campaign: {source_campaign} \n Plataforma: {platform_name}')
+        print(f'Extrayendo links de: {real_name} \n Nombre corto: {short_lead_name} \n País: {country} \n Source campaign: {source_campaign} \n Plataforma: {platform_name}')
 
         # Going to the profile page
         driver.get(profile_url)
@@ -45,13 +45,13 @@ try:
 
         # Extract the links to the ads
 
-        elements = scroll_down(driver)
+        elements = get_links_to_ads(driver)
 
         print(f'El lead tiene publicados {len(elements)} anuncios (Incluyendo ads no pertenecientes a la campaña))')
 
         # Write the links to the excel file and remove duplicates
 
-        unique_urls, all_urls = write_links_excel(elements,lead_name)
+        unique_urls, all_urls = write_links_excel(elements,short_lead_name)
 
         print(f' Actualmente hay: {len(all_urls)} ads. \n De los cuales {len(unique_urls)} son únicos. \n {"*"*50} \n')
 
@@ -62,8 +62,8 @@ try:
         print(f' Ads que no habian sido extraidos antes (No estan en el CRM): {len(new_urls)} \n {"*"*50} \n')
 
         #Visit each ad and extract info
-
-        extract_each_ad(driver,new_urls,lead_name,source_campaign,country,platform_name)
+                        
+        extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,country,platform_name)
 
     driver.quit()
     print('Done')

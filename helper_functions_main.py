@@ -4,8 +4,11 @@ import pandas as pd
 import os
 import requests
 from PIL import Image
+from io import BytesIO
 import numpy as np
 import time
+from selenium import webdriver
+import os
 
 def rename_platforms(x):
     if re.search('ebay',x.lower()):
@@ -65,7 +68,10 @@ def save_img(driver, img_xpath, platform_name, url):
             response = requests.get(img_url)
             if response.status_code == 200:
 
-                img = Image.open(requests.get(img_url, stream=True).raw)
+                try:
+                    img = Image.open(requests.get(img_url, stream=True).raw)
+                except:
+                    img = Image.open(BytesIO(response.content))
 
                 img = img.convert('RGB')
                 
@@ -105,5 +111,30 @@ def save_img(driver, img_xpath, platform_name, url):
         print(f'no se pudo descargar la imagen del ad {url}')
         img_path = np.nan
         return img_path
+
+
+def driver_setup():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--lang=en")
+    prefs = {
+    "translate_whitelists": {
+                            "ko":"en",
+                            "fr":"en",
+                            "de":"en",
+                            "es":"en",
+                            "it":"en",
+                            },
+    "translate":{"enabled":"true"}
+    }
+
+    options.add_experimental_option("prefs", prefs)
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36")
+    #options.add_argument("--headless")
+    options.add_argument("--window-size=1920,1380")
+
+    driver_path = os.path.join("selenium_web_driver", "chromedriver.exe")
+    driver = webdriver.Chrome(executable_path= driver_path, options=options)
+
+    return driver
 
 

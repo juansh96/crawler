@@ -1,6 +1,6 @@
 import time
 
-def scroll_down(driver):
+def get_links_to_ads(driver):
     
 
     last_height = driver.execute_script("return document.body.scrollHeight")

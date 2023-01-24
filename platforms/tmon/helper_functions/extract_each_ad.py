@@ -6,9 +6,9 @@ import numpy as np
 import os
 from googletrans import Translator
 from openpyxl import Workbook
-from PIL import Image
-import requests
-from io import BytesIO
+
+from helper_functions_main import check_exists_by_xpath
+from helper_functions_main import save_img
 
 def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,country,platform_name):
 
@@ -35,87 +35,53 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//p[@class='deal_price_sell']")))
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//span[@class='deal_price_buy_count']")))
             
-            
-            
-            
-            
-            
-            
+
             except Exception as e:
                 print(url,e)
-                time.sleep(15)
+                time.sleep(5)
 
             Country= country
             Seller_name= real_name
             Account_name= real_name
-            try:
-                Comments=driver.find_element_by_xpath("//h2[@class='deal_title_main']").text
-            except:
-                Comments='np.nan'
-            try:
-                Price= driver.find_element_by_xpath("//p[@class='deal_price_sell']").text
-            except: 
-                Price='np.nan'
-            try:
-                Title=driver.find_element_by_xpath("//h2[@class='deal_title_main']").text
-            except:
-                Title='np.nan'
-            try:
-                Unit_Sold= driver.find_element_by_xpath("//span[@class='deal_price_buy_count']").text
-            except:
-                Unit_Sold='np.nan'
-            
-            
-            
             url= url
             Products= np.nan
-            try:
-                Available_unit= driver.find_element_by_xpath("//span[@class='stock']/font/font").text
-            except:
-                Available_unit= np.nan,
-
-            try:
-                img_element = driver.find_element_by_xpath("//img[@alt='product photo']")
-                img_url = img_element.get_attribute("src")
-                i = 1
-                while True:
-                    response = requests.get(img_url)
-                    if response.status_code == 200:
-                        img = Image.open(BytesIO(response.content))
-
-                        img_path = os.path.join('Output_data','Imgs', f'{platform_name}_{short_lead_name}.jpg')
-                        
-                        if os.path.exists(img_path):
-                            # Add a counter to the file name
-                            file_name, file_ext = os.path.splitext(img_path)
-                            counter = 1
-                            new_img_path = file_name + str(counter) + file_ext
-                            while os.path.exists(new_img_path):
-                                counter += 1
-                                new_img_path = file_name + str(counter) + file_ext
-                            img_path = new_img_path 
-                        
-                        img.save(img_path, 'JPEG')
-                        print(f'Image saved: {img_path}')
-                        break
-
-                    elif i == 10:
-                        print("Max attempt reached \n Error while fetching image, status code: ",response.status_code)
-                        img_path = np.nan
-                        break
-
-                    else:
-                        print("Error while fetching image, status code: ",response.status_code)
-                        time.sleep(5)
-                        i += 1 
-            except:
-                img_path = np.nan
-                
-
             Offer_Type=np.nan
             License_Type=np.nan
             Lead_Source_Campaign= source_campaign
             Platform= platform_name
+
+            # Extracting the Title and Comments (are the same)
+            try:
+                Comments=driver.find_element_by_xpath("//h2[@class='deal_title_main']").text
+            except:
+                Comments='np.nan'
+            
+            Title = Comments
+            
+            # Extracting the Price
+            if check_exists_by_xpath(driver,"//p[@class='deal_price_sell']"):
+                try:
+                    Price= driver.find_element_by_xpath("//p[@class='deal_price_sell']").text
+                except: 
+                    Price='np.nan'
+            
+            # Extracting the Unit Sold
+            if check_exists_by_xpath(driver,"//span[@class='deal_price_buy_count']"):   
+                try:
+                    Unit_Sold= driver.find_element_by_xpath("//span[@class='deal_price_buy_count']").text
+                except:
+                    Unit_Sold='np.nan'
+            
+            # Extracting the Available unit
+            try:
+                Available_unit= driver.find_element_by_xpath("//span[@class='stock']/font/font").text
+            except:
+                Available_unit= np.nan
+
+            # Extracting the image
+            img_xpath = "//img[@alt='product photo']"
+            img_path = save_img(driver, img_xpath, platform_name, url)
+
 
             translator = Translator()
             Comments = translator.translate(Comments, dest='en').text

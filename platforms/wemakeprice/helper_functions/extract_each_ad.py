@@ -10,16 +10,16 @@ from openpyxl import Workbook
 from helper_functions_main import check_exists_by_xpath
 from helper_functions_main import save_img
 
-def extract_each_ad(driver,urls,lead_name,source_campaign,country,platform_name):
+def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,country,platform_name):
 
     ads = []
     i = 1
 
-    screenshots_path = os.path.join('Output_data','Screenshoots',f'Proofs DB Preparator {lead_name}')
+    screenshots_path = os.path.join('Output_data','Screenshoots',f'Proofs DB Preparator {short_lead_name}')
     os.mkdir(screenshots_path)
 
     
-    workbook_name = f'ads_{lead_name}.xlsx'
+    workbook_name = f'ads_{real_name}.xlsx'
     wb = Workbook()
     page = wb.active
     page.title = 'ads'
@@ -27,7 +27,7 @@ def extract_each_ad(driver,urls,lead_name,source_campaign,country,platform_name)
     page.append(headers)
 
     
-    for url in urls:
+    for url in new_urls:
         try:
             driver.get(url)
             
@@ -43,11 +43,11 @@ def extract_each_ad(driver,urls,lead_name,source_campaign,country,platform_name)
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//span[@class='total_purchase']")))
             except Exception as e:
                 print(url,e)
-                time.sleep(15)
+                time.sleep(5)
 
             Country= country
-            Seller_name= lead_name
-            Account_name= lead_name
+            Seller_name= real_name
+            Account_name= real_name
             url= url
             Products= np.nan
             Offer_Type=np.nan
@@ -144,7 +144,7 @@ def extract_each_ad(driver,urls,lead_name,source_campaign,country,platform_name)
             single_screenshoot_path = os.path.join(screenshots_path, title_folder)
             os.mkdir(single_screenshoot_path)
 
-            final_screenshoot_path = os.path.join(single_screenshoot_path, f'{platform_name}_{lead_name}_AllAds.png')
+            final_screenshoot_path = os.path.join(single_screenshoot_path, f'{platform_name}_{short_lead_name}_AllAds.png')
             driver.save_screenshot(final_screenshoot_path)
         except Exception as e:
             print(e)
@@ -152,6 +152,6 @@ def extract_each_ad(driver,urls,lead_name,source_campaign,country,platform_name)
         
         print(row_values)
         print('*'*50)
-        print(f'Ad {i} extracted of {len(urls)}')
+        print(f'Ad {i} extracted of {len(new_urls)}')
         print('*'*50)
         i += 1

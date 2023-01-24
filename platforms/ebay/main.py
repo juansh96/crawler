@@ -3,12 +3,11 @@ import time
 import os
 import pandas as pd
 #estas son las mias
-from platforms.ebay.helper_functions.driver_setup import driver_setup
+
 from platforms.ebay.helper_functions.scroll_down import scroll_down
 from platforms.ebay.helper_functions.write_links_excel import write_links_excel
 from platforms.ebay.helper_functions.extract_each_ad import extract_each_ad
-#from platforms.ebay.helper_functions.leads_links import links_leads
-from helper_functions_main import check_exists_by_xpath, short_name, links_leads
+from helper_functions_main import driver_setup, check_exists_by_xpath, short_name, links_leads
 
 
 existent_links_path = os.path.join("Input_data","existent_links.xlsx")

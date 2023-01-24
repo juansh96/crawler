@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def scroll_down(driver):
+def get_links_to_ads(driver):
 
     try:
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//a[@class='view_more_bar']")))
@@ -37,12 +37,6 @@ def scroll_down(driver):
 
     return elements
 
-
-     #xpath to a button that says "view more" or "load more" or something like that
-    #while element present click on view more button selenium
-    #while True:
-    #    if driver.find_elements_by_xpath("//a[@class='view_more_bar']"):
-    #        try:
 
     
    

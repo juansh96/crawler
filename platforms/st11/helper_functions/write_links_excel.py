@@ -1,8 +1,8 @@
 from openpyxl import Workbook
 import os
 
-def write_links_excel(elements,lead_name):
-    workbook_name = f'links_{lead_name}.xlsx'
+def write_links_excel(elements,short_lead_name):
+    workbook_name = f'links_{short_lead_name}.xlsx'
     wb = Workbook()
     page = wb.active
     page.title = 'links'

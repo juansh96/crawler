@@ -6,9 +6,10 @@ import numpy as np
 import os
 from googletrans import Translator
 from openpyxl import Workbook
-from PIL import Image
-import requests
 
+from helper_functions_main import check_exists_by_xpath
+from helper_functions_main import save_img
+                    
 def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,country,platform_name):
 
     ads = []
@@ -40,63 +41,57 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             Country= country
             Seller_name= real_name
             Account_name= real_name
-            try:
-                Comments=driver.find_element_by_xpath("//h1[@class='title']").text
-            except:
-                Comments= np.nan
-            try:
-                Price= driver.find_element_by_xpath("//dl[@class='price']//span[@class='value'][1]").text
-            except: 
-                Price= np.nan
-            try:
-                Title=driver.find_element_by_xpath("//h1[@class='title']").text
-            except:
-                Title= np.nan
-            
-            # esta plataforma no muestra la informacion de las unidades vendidas
-            try:
-                Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/font/strong/font").text
-            except:
-                try:    
-                    Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/strong").text
-                except:
-                    Unit_Sold= np.nan   
             url= url
             Products= np.nan
-            try:
-                Available_unit= driver.find_element_by_xpath("//span[@class='stock']/font/font").text # no tiene stock
-            except:
-                Available_unit= np.nan
-            
-            try:
-                img_element = driver.find_element_by_xpath("//div[@class='img_full']/img")
-                img_url = img_element.get_attribute("src")
-                img = Image.open(requests.get(img_url, stream=True).raw)
-                img_path = os.path.join('Output_data','Imgs', f'{platform_name}_{short_lead_name}.jpg')
-
-                if os.path.exists(img_path):
-                    # Add a counter to the file name
-                    file_name, file_ext = os.path.splitext(img_path)
-                    counter = 1
-                    new_img_path = file_name + str(counter) + file_ext
-                    while os.path.exists(new_img_path):
-                        counter += 1
-                        new_img_path = file_name + str(counter) + file_ext
-                    img_path = new_img_path
-                
-                img.save(img_path, 'JPEG')
-
-            except:
-                img_path = np.nan
-
             Offer_Type=np.nan
             License_Type=np.nan
             Lead_Source_Campaign= source_campaign
             Platform= platform_name
 
+            # Extracting the Title and Comments (are the same)
+            try:
+                Comments=driver.find_element_by_xpath("//h1[@class='title']").text
+            except:
+                Comments= np.nan
+
+            Title = Comments
+
+            # Extracting the Price
+            try:
+                Price= driver.find_element_by_xpath("//dl[@class='price']//span[@class='value'][1]").text
+            except: 
+                Price= np.nan
+            
+            # Extracting the Unit Sold            
+            # esta plataforma no muestra la informacion de las unidades vendidas
+            if check_exists_by_xpath(driver,"//span[@class='total_purchase']/font/strong/font"):
+                try:
+                    Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/font/strong/font").text
+                except:
+                    Unit_Sold= np.nan
+            else:
+                try:    
+                    Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/strong").text
+                except:
+                    Unit_Sold= np.nan   
+            
+            # Extracting the Available unit
+            try:
+                Available_unit= driver.find_element_by_xpath("//span[@class='stock']/font/font").text # no tiene stock
+            except:
+                Available_unit= np.nan
+            
+            # Extracting the image
+            img_xpath = "//div[@class='img_full']/img"
+            
+            img_path = save_img(driver, img_xpath, platform_name, url)
+
+            # traducir los comentarios y el titulo
+
             translator = Translator()
             Comments = translator.translate(Comments, dest='en').text
             Title = translator.translate(Title, dest='en').text
+        
         except:
             continue
 

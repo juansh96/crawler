@@ -23,9 +23,10 @@ list_lead_short_name, list_lead_real_name, list_source_campaign, list_country, l
 
 driver = driver_setup()
 
-try:
-    for short_name, real_name, source_campaign, country, profile_url in zip(list_lead_short_name, list_lead_real_name, list_source_campaign, list_country, list_profile_url):
+errors_list = []
 
+for short_name, real_name, source_campaign, country, profile_url in zip(list_lead_short_name, list_lead_real_name, list_source_campaign, list_country, list_profile_url):
+    try:
         short_lead_name = short_name
 
         real_name = real_name
@@ -65,11 +66,22 @@ try:
 
         extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,country,platform_name)
 
+    except Exception as e:
+        print(e)
+        print(f'Error en el proceso del crawler de {platform} \n')
+        errors_list.append({'Lead_name': real_name, 'Error': e})
+        continue
+
+
+try:
+    df_errors = pd.DataFrame(errors_list)
+    now = datetime.now()
+    now = now.strftime("%Y-%m-%d %H-%M-%S")
+    output_path_platform_errors = os.path.join('Output_data','Errors','Leads',f'leads_errors_{now}.xlsx')
+    df_errors.to_excel(output_path_platform_errors, index=False)
+
     driver.quit()
     print('Done')
-    
-    
-except Exception as e:
-    print(e)
-    print(f'Error en el proceso del crawler de {platform} \n')
+except:
     driver.quit()
+    print('Done')

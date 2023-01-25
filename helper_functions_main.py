@@ -9,6 +9,7 @@ import numpy as np
 import time
 from selenium import webdriver
 import os
+import glob
 
 def rename_platforms(x):
     if re.search('ebay',x.lower()):
@@ -136,5 +137,105 @@ def driver_setup():
     driver = webdriver.Chrome(executable_path= driver_path, options=options)
 
     return driver
+
+
+def concat_ads(): 
+    # specifying the path to csv files
+    input_path = os.path.join('Output_data','Ads')
+    
+    # xlsx files in the path
+    file_list = glob.glob(input_path + "/*.xlsx")
+    
+    # list of excel files we want to merge.
+    # pd.read_excel(file_path) reads the excel
+    # data into pandas dataframe.
+    excl_list = []
+    
+    for file in file_list:
+        excl_list.append(pd.read_excel(file))
+    
+    # create a new dataframe to store the
+    # merged excel file.
+    excl_merged = pd.DataFrame()
+    
+    for excl_file in excl_list:
+        
+        # appends the data into the excl_merged
+        # dataframe.
+        excl_merged = excl_merged.append(
+        excl_file, ignore_index=True)
+    
+    # exports the dataframe into excel file with
+    # specified name.
+    output_path = os.path.join('Output_data','Final_excel','total_ads.xlsx')
+    excl_merged.to_excel(output_path, index=False)
+
+def concat_errors_platform():
+    try: 
+        # specifying the path to csv files
+        input_path = os.path.join('Output_data','Errors','Platform')
+        
+        # xlsx files in the path
+        file_list = glob.glob(input_path + "/*.xlsx")
+        
+        # list of excel files we want to merge.
+        # pd.read_excel(file_path) reads the excel
+        # data into pandas dataframe.
+        excl_list = []
+        
+        for file in file_list:
+            excl_list.append(pd.read_excel(file))
+        
+        # create a new dataframe to store the
+        # merged excel file.
+        excl_merged = pd.DataFrame()
+        
+        for excl_file in excl_list:
+            
+            # appends the data into the excl_merged
+            # dataframe.
+            excl_merged = excl_merged.append(
+            excl_file, ignore_index=True)
+        
+        # exports the dataframe into excel file with
+        # specified name.
+        output_path = os.path.join('Output_data','Final_excel','platform_errros.xlsx')
+        excl_merged.to_excel(output_path, index=False)
+    except Exception as e:
+        print('No hubo errores de plataforma')
+
+def concat_errors_leads():
+    try: 
+        # specifying the path to csv files
+        input_path = os.path.join('Output_data','Errors','Leads')
+        
+        # xlsx files in the path
+        file_list = glob.glob(input_path + "/*.xlsx")
+        
+        # list of excel files we want to merge.
+        # pd.read_excel(file_path) reads the excel
+        # data into pandas dataframe.
+        excl_list = []
+        
+        for file in file_list:
+            excl_list.append(pd.read_excel(file))
+        
+        # create a new dataframe to store the
+        # merged excel file.
+        excl_merged = pd.DataFrame()
+        
+        for excl_file in excl_list:
+            
+            # appends the data into the excl_merged
+            # dataframe.
+            excl_merged = excl_merged.append(
+            excl_file, ignore_index=True)
+        
+        # exports the dataframe into excel file with
+        # specified name.
+        output_path = os.path.join('Output_data','Final_excel','leads_errros.xlsx')
+        excl_merged.to_excel(output_path, index=False)
+    except Exception as e:
+        print('No hubo errores de leads')
 
 

@@ -6,10 +6,9 @@ import numpy as np
 import os
 from googletrans import Translator
 from openpyxl import Workbook
-from PIL import Image
-import requests
-from io import BytesIO
+
 from helper_functions_main import check_exists_by_xpath
+from helper_functions_main import save_img
 
 def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,country,platform_name):
 
@@ -36,29 +35,35 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//span[@itemprop='price']/span")))
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//a[@class='vi-txt-underline']"))) 
             except Exception as e:
-                print(url, "\n element not found \n",e)
-                time.sleep(15)
+                print(url,e)
+                time.sleep(5)
             
             Country= country
             Seller_name= real_name
             Account_name= real_name
             url= url
             Products= np.nan
+            Offer_Type=np.nan
+            License_Type=np.nan
+            Lead_Source_Campaign= source_campaign
+            Platform= platform_name
 
+
+            # Extracting the Title and Comments (are the same)
             try:
                 Comments=driver.find_element_by_xpath("//h1[@class='x-item-title__mainTitle']/span").text
             except:
                 Comments= np.nan
+            
+            Title= Comments
+            
+            # Extracting the Price
             try:
                 Price= driver.find_element_by_xpath("//span[@itemprop='price']/span").text
             except: 
                 Price= np.nan
-            try:
-                Title=driver.find_element_by_xpath("//h1[@class='x-item-title__mainTitle']/span").text
-            except:
-                Title= np.nan
-             
-            ############################# Unit Sold #############################
+
+            # Extracting the Unit Sold
             Unit_Sold= np.nan
             if check_exists_by_xpath(driver, "//a[@class='vi-txt-underline']"):
                 Unit_Sold= driver.find_element_by_xpath("//a[@class='vi-txt-underline']").text
@@ -69,7 +74,7 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             else:
                 print('No unit sold found')
             
-            ############################# Available unit #############################
+            # Extracting the Available unit
             Available_unit= np.nan
             
             if check_exists_by_xpath(driver, "//span[@id='qtySubTxt']/span"):
@@ -84,58 +89,17 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             else:
                 print('No Available unit found')
                 
-            ##########################################################################
-            try:
-                img_element = driver.find_element_by_xpath("//div[@class='ux-image-carousel-item active image']/img")
-                img_url = img_element.get_attribute("src")
-                i=1
-                while True:
-                    response = requests.get(img_url)
-                    if response.status_code == 200:
-                        img = Image.open(BytesIO(response.content))
-
-                        img_path = os.path.join('Output_data','Imgs', f'{platform_name}_{short_lead_name}.jpg')
-                        
-                        if os.path.exists(img_path):
-                            # Add a counter to the file name
-                            file_name, file_ext = os.path.splitext(img_path)
-                            counter = 1
-                            new_img_path = file_name + str(counter) + file_ext
-                            while os.path.exists(new_img_path):
-                                counter += 1
-                                new_img_path = file_name + str(counter) + file_ext
-                            img_path = new_img_path
-                        
-                        try:
-                            img.save(img_path, 'JPEG')
-                            print(f'Image saved: {img_path}')
-                            break
-                        except:
-                            print(f'Error saving image: {img_path}')
-                            img_path = np.nan
-                            break
-
-                    elif i == 10:
-                        print("Max attempt reached \n Error while fetching image, status code: ",response.status_code)
-                        img_path = np.nan
-                        break
-
-            except Exception as e:
-                print(e)
-                img_path = np.nan
-
-            Offer_Type=np.nan
-            License_Type=np.nan
-            Lead_Source_Campaign= source_campaign
-            Platform= platform_name
-
+            # Extracting the image
+            img_xpath = "//div[@class='ux-image-carousel-item active image']/img"
+            
+            img_path = save_img(driver, img_xpath, platform_name, url)
+            
+            # translate to english
             translator = Translator()
             Comments = translator.translate(Comments, dest='en').text
             Title = translator.translate(Title, dest='en').text
         except Exception as e:
-            print(e)
-            print(f'Error en esta parte de extrct each ad {url}')
-            pass
+            continue
 
         # escribir ad por ad en un excel
         row_values = []
@@ -155,9 +119,9 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
         row_values.append(str(Platform))
         
         # keep only the name of the image
-        try:
+        if isinstance(img_path, (str, bytes, os.PathLike)):
             img_name = os.path.basename(img_path)
-        except:
+        else:
             img_name = np.nan
 
         row_values.append(str(img_name))

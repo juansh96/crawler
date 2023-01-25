@@ -38,7 +38,7 @@ def  links_leads(platform):
 
     df = pd.read_excel(leads_path)
     
-    df = df[df['Platform'].str.lower() == platform.lower()]
+    df = df[df['Platform'].str.lower().str.contains(platform.lower())]
             
     df['short_name'] = df['Account Name (Seller Name) (Account)'].apply(short_name)
     

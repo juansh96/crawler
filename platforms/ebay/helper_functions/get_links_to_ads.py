@@ -1,9 +1,6 @@
 import time
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
-def scroll_down(driver):
+def get_links_to_ads(driver):
 
     try:
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")

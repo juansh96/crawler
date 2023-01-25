@@ -3,7 +3,7 @@ import os
 import pandas as pd
 #estas son las mias
 
-from platforms.auction.helper_functions.scroll_down import scroll_down
+from platforms.auction.helper_functions.get_links_to_ads import get_links_to_ads
 from platforms.auction.helper_functions.write_links_excel import write_links_excel
 from platforms.auction.helper_functions.extract_each_ad import extract_each_ad
 from helper_functions_main import driver_setup, short_name, links_leads
@@ -44,13 +44,13 @@ try:
 
         # Extract the links to the ads
 
-        elements = scroll_down(driver)
+        elements = get_links_to_ads(driver)
 
         print(f'El lead tiene publicados {len(elements)} anuncios (Incluyendo ads no pertenecientes a la campaña))')
 
         # Write the links to the excel file and remove duplicates
 
-        unique_urls, all_urls = write_links_excel(elements,lead_name)
+        unique_urls, all_urls = write_links_excel(elements,short_lead_name)
 
         print(f' Actualmente hay: {len(all_urls)} ads. \n De los cuales {len(unique_urls)} son únicos. \n {"*"*50} \n')
 

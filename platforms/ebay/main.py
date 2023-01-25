@@ -4,7 +4,7 @@ import os
 import pandas as pd
 #estas son las mias
 
-from platforms.ebay.helper_functions.scroll_down import scroll_down
+from platforms.ebay.helper_functions.get_links_to_ads import get_links_to_ads
 from platforms.ebay.helper_functions.write_links_excel import write_links_excel
 from platforms.ebay.helper_functions.extract_each_ad import extract_each_ad
 from helper_functions_main import driver_setup, check_exists_by_xpath, short_name, links_leads
@@ -20,10 +20,10 @@ existent_links = existent_links['URL'].tolist()
 platform = 'ebay'
 
 list_lead_short_name, list_lead_real_name, list_source_campaign, list_country, list_profile_url = links_leads(platform)
-
+print(list_lead_short_name)
 driver = driver_setup()
 time.sleep(5)
-
+print("i'm hereeeee222")
 try:
     for short_name, real_name, source_campaign, country, profile_url in zip(list_lead_short_name, list_lead_real_name, list_source_campaign, list_country, list_profile_url):
         
@@ -41,6 +41,8 @@ try:
 
         # Going to the profile page
         driver.get(profile_url)
+        
+        time.sleep(5)
 
         if check_exists_by_xpath(driver, "//div[@class='target-icaptcha-slot']"):
             print('Resuelva el captcha y presione enter')
@@ -48,17 +50,15 @@ try:
         else:
             print('no hay captcha')
 
-        time.sleep(5)
-
         # Extract the links to the ads
 
-        elements = scroll_down(driver)
+        elements = get_links_to_ads(driver)
 
         print(f'El lead tiene publicados {len(elements)} anuncios (Incluyendo ads no pertenecientes a la campaña))')
 
         # Write the links to the excel file and remove duplicates
 
-        unique_urls, all_urls = write_links_excel(elements,lead_name)
+        unique_urls, all_urls = write_links_excel(elements,short_lead_name)
 
         print(f' Actualmente hay: {len(all_urls)} ads. \n De los cuales {len(unique_urls)} son únicos. \n {"*"*50} \n')
 

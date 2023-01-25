@@ -124,10 +124,8 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
 
         # keep only the name of the image
         if isinstance(img_path, (str, bytes, os.PathLike)):
-            print(f'acà voy: {img_path}')
             img_name = os.path.basename(img_path)
         else:
-            print(f'hubo error acá ******')
             img_name = np.nan
 
         row_values.append(str(img_name))

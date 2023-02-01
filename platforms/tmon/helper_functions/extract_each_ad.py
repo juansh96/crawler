@@ -59,9 +59,9 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             Title = Comments
             
             # Extracting the Price
-            if check_exists_by_xpath(driver,"//p[@class='deal_price_sell']"):
+            if check_exists_by_xpath(driver,"//p[@class='deal_price_sell']/strong"):
                 try:
-                    Price= driver.find_element_by_xpath("//p[@class='deal_price_sell']").text
+                    Price= driver.find_element_by_xpath("//p[@class='deal_price_sell']/strong").text
                 except: 
                     Price='np.nan'
             

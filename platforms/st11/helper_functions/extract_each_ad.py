@@ -64,16 +64,16 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             
             # Extracting the Unit Sold            
             # esta plataforma no muestra la informacion de las unidades vendidas
-            if check_exists_by_xpath(driver,"//span[@class='total_purchase']/font/strong/font"):
-                try:
-                    Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/font/strong/font").text
-                except:
-                    Unit_Sold= np.nan
-            else:
-                try:    
-                    Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/strong").text
-                except:
-                    Unit_Sold= np.nan   
+            
+            try:
+                Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/font/strong/font").text
+            except:
+                pass
+            try:    
+                Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/strong").text
+            except:
+                Unit_Sold= np.nan 
+                              
             
             # Extracting the Available unit
             try:

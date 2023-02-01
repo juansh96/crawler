@@ -79,13 +79,13 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             
             if check_exists_by_xpath(driver, "//span[@id='qtySubTxt']/span"):
                 Available_unit= driver.find_element_by_xpath("//span[@id='qtySubTxt']/span").text
-                print('1 Available unit found')
+                
             elif check_exists_by_xpath(driver, "//span[@id='qtySubTxt']/span/font"):
                 Available_unit= driver.find_element_by_xpath("//span[@id='qtySubTxt']/span/font").text
-                print('2 Available unit found')
+                
             elif check_exists_by_xpath(driver, "//div[@class='d-quantity__availability']//font"):
                 Available_unit= driver.find_element_by_xpath("//div[@class='d-quantity__availability']//font").text
-                print('3 Available unit found') 
+                 
             else:
                 print('No Available unit found')
                 

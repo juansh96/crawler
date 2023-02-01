@@ -28,14 +28,15 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
 
     
     for url in new_urls:
+
         try:
             driver.get(url)
             
             # Esta parte es porque nunca carga bien la primera pagina
             if i == 1:
-                time.sleep(5)
+                
                 driver.get(url)
-                time.sleep(5)
+                
             
             try:
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//h3[@class='deal_tit']")))
@@ -43,7 +44,7 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//span[@class='total_purchase']")))
             except Exception as e:
                 print(url,e)
-                time.sleep(5)
+                
 
             Country= country
             Seller_name= real_name
@@ -64,28 +65,49 @@ def extract_each_ad(driver,new_urls,short_lead_name, real_name ,source_campaign,
             Title= Comments
             
             # Extracting the Price
+            
             if check_exists_by_xpath(driver,"//strong[@class='sale_price']/em/font/font"):
                 try:
                     Price= driver.find_element_by_xpath("//strong[@class='sale_price']/em/font/font").text
-                except: 
-                    Price= np.nan
-            else:
+                except:
+                    pass
+            
+            if check_exists_by_xpath(driver,"//strong[@class='sale_price']/em"):
                 try:
-                    Price= driver.find_element_by_xpath("//strong[@class='sale_price']/em").text
+                    Price= driver.find_element_by_xpath(driver,"//strong[@class='sale_price']/em").text
+                except:
+                    pass 
+
+            if check_exists_by_xpath(driver,"//em[@class='num']"):
+                try:
+                    Price= driver.find_element_by_xpath("//em[@class='num']").text
+                except:
+                    pass 
+                
+            if check_exists_by_xpath(driver,"//strong[@class='sale_price']/child::font//em/font"):    
+                try:
+                    Price= driver.find_element_by_xpath("//strong[@class='sale_price']/child::font//em/font").text
+                except:
+                    pass
+
+            if check_exists_by_xpath(driver,"/html/body/div[2]/div[2]/div/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/div/strong/font/em/font"):     
+                try:
+                    Price= driver.find_element_by_xpath("/html/body/div[2]/div[2]/div/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/div/strong/font/em/font").text
                 except: 
-                    Price= np.nan
+                    print('aca llegue')
+                    Price= np.nan                  
 
             # Extracting the Unit Sold
-            if check_exists_by_xpath(driver,"//span[@class='total_purchase']/font/strong/font"):    
-                try:
-                    Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/font/strong/font").text
-                except:
-                    Unit_Sold= np.nan
-            else:
+            
+            try:
+                Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/font/strong/font").text
+            except:
                 try:    
                     Unit_Sold= driver.find_element_by_xpath("//span[@class='total_purchase']/strong").text
                 except:
-                    Unit_Sold= np.nan    
+                    Unit_Sold= np.nan
+            
+                    
             
             # Extracting the Available unit
             try:
